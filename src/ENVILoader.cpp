@@ -201,8 +201,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setNumberOfComponentsPerPixel(numVars);
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
-		_core->notifyDataAdded(points->getName());
-		_core->notifyDataChanged(images->getName());
+		_core->notifyDataChanged(images);
 
 		return true;
 	}
