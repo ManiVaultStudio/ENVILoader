@@ -190,7 +190,7 @@ bool ENVILoader::loadFromFile(std::string file)
 
 		_core->notifyDataChanged(points);
 
-		auto image = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
+		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
 		//hdps::util::DatasetRef<Images> images(_core->addData("Images", "images", points->getName()));
 		_core->notifyDataAdded(images);
 
