@@ -12,16 +12,18 @@ namespace ENVI {
     class ENVILoader;
 }
 
+using namespace hdps;
+
 class ENVILoader
 {
 private:
 	std::string _textHeader;
 	QString _datasetName;
 
-	hdps::CoreInterface* _core;
+	CoreInterface* _core;
 
 public:
-	ENVILoader(hdps::CoreInterface* core, QString datasetName);
+	ENVILoader(CoreInterface* core, QString datasetName);
 	~ENVILoader();
 
 	bool loadFromFile(std::string file);

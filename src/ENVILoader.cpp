@@ -3,7 +3,6 @@
 #include "CoreInterface.h"
 #include "PointData.h"
 #include "ImageData/Images.h"
-#include "util/DatasetRef.h"
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +12,9 @@
 #include <QMessageBox>
 #include <QString>
 
-ENVILoader::ENVILoader(hdps::CoreInterface* core, QString datasetName):
+using namespace hdps;
+
+ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
 	_core(core),
 	_datasetName(datasetName)
 {
@@ -180,23 +181,20 @@ bool ENVILoader::loadFromFile(std::string file)
 			throw std::runtime_error("Unable to read raw data.");
 		}
 
-		hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
-
-		if (!points.isValid())
-		{
-			throw std::runtime_error("Unable to create points dataset");
-		}
-
-		hdps::util::DatasetRef<Images> images(_core->addData("Images", "images", points->getName()));
-
-		if (!images.isValid())
-		{
-			throw std::runtime_error("Unable to create images dataset");
-		}
+		auto points = _core->addDataset<Points>("Points", _datasetName);
+		//hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
+		_core->notifyDataAdded(points);
 
 		points->setData(std::move(data), numVars);
 		points->setDimensionNames(wavelengths);
 
+		_core->notifyDataChanged(points);
+
+		auto image = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
+		//hdps::util::DatasetRef<Images> images(_core->addData("Images", "images", points->getName()));
+		_core->notifyDataAdded(images);
+
+		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
 		images->setImageGeometry(QSize(imgWidth, imgHeight));
@@ -204,7 +202,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
 		_core->notifyDataAdded(points->getName());
-		_core->notifyDataAdded(images->getName());
+		_core->notifyDataChanged(images->getName());
 
 		return true;
 	}

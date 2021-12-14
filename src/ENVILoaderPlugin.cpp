@@ -47,7 +47,7 @@ void ENVILoaderPlugin::loadData()
 
 QIcon ENVILoaderPluginFactory::getIcon() const
 {
-    return hdps::Application::getIconFont("FontAwesome").getIcon("images");
+    return Application::getIconFont("FontAwesome").getIcon("images");
 }
 
 LoaderPlugin* ENVILoaderPluginFactory::produce()
@@ -55,7 +55,7 @@ LoaderPlugin* ENVILoaderPluginFactory::produce()
     return new ENVILoaderPlugin(this);
 }
 
-hdps::DataTypes ENVILoaderPluginFactory::supportedDataTypes() const
+DataTypes ENVILoaderPluginFactory::supportedDataTypes() const
 {
     DataTypes supportedTypes;
     supportedTypes.append(PointType);
