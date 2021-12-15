@@ -4,8 +4,7 @@
 
 #include <QStringList>
 
-using hdps::plugin::LoaderPluginFactory;
-using hdps::plugin::LoaderPlugin;
+using namespace hdps::plugin;
 
 /**
  * ENVI loader plugin class
@@ -18,8 +17,8 @@ class ENVILoaderPlugin : public LoaderPlugin
 {
 public:
     /** Default constructor */
-    ENVILoaderPlugin(const hdps::plugin::PluginFactory* factory);
- 
+    ENVILoaderPlugin(const PluginFactory* factory);
+
 public: // Inherited from LoaderPlugin
 
     /** Initializes the plugin */
