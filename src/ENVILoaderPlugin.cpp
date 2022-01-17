@@ -41,7 +41,9 @@ void ENVILoaderPlugin::loadData()
 
     file.close();
 
-    ENVILoader* loader = new ENVILoader(_core, "test");
+    QString name = fileName.mid(fileName.lastIndexOf("/")+1);
+    name.chop(4);
+    ENVILoader* loader = new ENVILoader(_core,name);
     loader->loadFromFile(fileName.toStdString());
 }
 

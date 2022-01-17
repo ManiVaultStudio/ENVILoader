@@ -152,7 +152,7 @@ bool ENVILoader::loadFromFile(std::string file)
 				for (int y = 0; y < imgHeight; y++)
 					for (int x = 0; x < imgWidth; x++)
 					{
-						data[imgWidth * numVars * y + numVars * x + v] = bsqData[imgWidth * imgHeight * v + imgWidth * y + x];
+						data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = bsqData[imgWidth * imgHeight * v + imgWidth * y + x];
 					}
 
 			delete[] bsqData;
@@ -197,7 +197,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
-		images->setImageGeometry(QSize(imgWidth, imgHeight));
+		images->setImageSize(QSize(imgWidth, imgHeight));
 		images->setNumberOfComponentsPerPixel(numVars);
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
