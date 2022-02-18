@@ -12,10 +12,6 @@
 #include <QMessageBox>
 #include <QString>
 
-namespace FI {
-#include <FreeImage.h>
-}
-
 using namespace hdps;
 
 ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
@@ -190,7 +186,6 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		std::vector<float> subsampledData(targetWidth* targetHeight * numVars);
 
 		if (filter != -1) {
-			//subsampledData = subsampleWavelengthImage(ratio, imgWidth, imgHeight, targetWidth, targetHeight, filter, numVars, data);
 			subsampledData = nearestNeighbourFiltering(ratio, imgWidth, imgHeight, numVars, data);
 		}
 
@@ -199,6 +194,7 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		_core->notifyDataAdded(points);
 
 		if (filter == -1) {
+			std::cout << "aaaaa" << std::endl;
 			points->setData(std::move(data), numVars);
 		}
 		else {
@@ -256,54 +252,6 @@ std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWid
 	return subsampledData;
 }
 
-std::vector<float> ENVILoader::subsampleWavelengthImage(float ratio, int imgWidth, int imgHeight, int filter, int numVars, std::vector<float> data)
-{
-	int targetWidth = imgWidth * ratio;
-	int targetHeight = imgHeight * ratio;
-
-	std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
-
-	FI::FIBITMAP* subsampledBitmap = nullptr;
-
-	const auto f = static_cast<FI::FREE_IMAGE_FILTER>(filter);
-
-	auto bitmap = FI::FreeImage_Allocate(imgWidth, imgHeight, 8);
-
-	if (filter != -1) {
-
-		for (int v = 0; v < numVars; v++) {
-			for (uint x = 0; x < imgWidth; x++) {
-				for (uint y = 0; y < imgHeight; y++) {
-					FI::RGBQUAD color;
-					auto pixelValue = (FI::BYTE)(data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] * 255);
-					color.rgbRed = pixelValue;
-					color.rgbGreen = pixelValue;
-					color.rgbBlue = pixelValue;
-					FI::FreeImage_SetPixelColor(bitmap, x, y, &color);
-				}
-			}
-
-			subsampledBitmap = FI::FreeImage_Rescale(bitmap, targetWidth, targetHeight, f);
-			int noPixels = targetWidth * targetHeight;
-
-			for (int y = 0; y < imgHeight; y++) {
-				auto line = FI::FreeImage_GetScanLine(bitmap, y);
-
-				for (int x = 0; x < targetWidth; x++) {
-					const auto pixelIndex = y * targetWidth + x;
-
-					subsampledData[v * noPixels + pixelIndex] = line[x] / 255.0f;
-					if (subsampledData[v * noPixels + pixelIndex] != 0) {
-						std::cout << subsampledData[v * noPixels + pixelIndex] << std::endl;
-					}
-				}
-			}
-		}
-	}
-
-	return subsampledData;
-
-}
 std::string ENVILoader::trimString(std::string input, std::vector<char> delimiters)
 {
 	while (input.length() > 0 && std::find(std::begin(delimiters), std::end(delimiters), input[0]) != std::end(delimiters))

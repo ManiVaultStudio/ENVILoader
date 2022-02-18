@@ -31,7 +31,6 @@ public:
 
 	std::string textHeader();
 
-	std::vector<float> subsampleWavelengthImage(float ratio, int imgWidth, int imgHeight, int filter, int numVars, std::vector<float> data);
 	std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data);
 
 private:

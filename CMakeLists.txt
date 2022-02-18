@@ -7,11 +7,6 @@ PROJECT(${PROJECT})
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(FREEIMAGE_ROOT_DIR ${CMAKE_SOURCE_DIR}/FreeImage CACHE FILEPATH "Path to the directory containing FreeImage .h/.lib/.dll files")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /DWIN32 /EHsc /MP")
@@ -27,14 +22,6 @@ set(INSTALL_DIR_PATH $ENV{HDPS_INSTALL_DIR} CACHE PATH "The HDPS Install Directo
 file(TO_CMAKE_PATH ${INSTALL_DIR_PATH} INSTALL_DIR)
 
 find_package(Qt5 COMPONENTS Widgets WebEngineWidgets REQUIRED)
-
-SET(FREEIMAGE_ROOT_DIR CACHE PATH "Location of FreeImage library")
-find_package(FreeImage QUIET)
-
-if (NOT FREEIMAGE_FOUND)
-    message(FATAL_ERROR "Failed to find FreeImage, not building ImageLoaderPlugin")
-    return()
-endif()
 
 set(PLUGIN_SOURCES
     src/ENVILoaderPlugin.h
@@ -65,7 +52,6 @@ source_group(UI FILES ${UIS})
 source_group(Aux FILES ${AUX})
 
 include_directories("${INSTALL_DIR}/$<CONFIGURATION>/include/")
-include_directories("${FREEIMAGE_INCLUDE_PATH}")
 
 QT5_WRAP_UI(UI_HEADERS ${UIS})
 
@@ -86,31 +72,8 @@ target_link_libraries(${PROJECT} "${INSTALL_DIR}/$<CONFIGURATION>/lib/${CMAKE_SH
 target_link_libraries(${PROJECT} "${INSTALL_DIR}/$<CONFIGURATION>/lib/${CMAKE_SHARED_LIBRARY_PREFIX}PointData${LIB_SUFFIX}")
 target_link_libraries(${PROJECT} "${INSTALL_DIR}/$<CONFIGURATION>/lib/${CMAKE_SHARED_LIBRARY_PREFIX}ImageData${LIB_SUFFIX}")
 
-target_link_libraries(${PROJECT} "${FREEIMAGE_LIBRARY}")
-
-if(MSVC)
-    set(FreeImageName "FreeImage")
-elseif(APPLE)
-    set(FreeImageName "freeimage")
-else()
-    set(FreeImageName "freeimage-3.18.0")
-endif()
-
-file(GET_RUNTIME_DEPENDENCIES
-	LIBRARIES "${FREEIMAGE_INCLUDE_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${FreeImageName}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-	RESOLVED_DEPENDENCIES_VAR r_deps
-	UNRESOLVED_DEPENDENCIES_VAR u_deps) 
-
-message(STATUS, "Dependencies ${r_deps}")
-
 install(TARGETS ${PROJECT}
    RUNTIME DESTINATION Plugins COMPONENT SHAREDLIB
-)
-
-# copy the FreeImage library to the root install directory (the same level as the hdps executable)
-install(FILES
-	"${FREEIMAGE_INCLUDE_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}${FreeImageName}${CMAKE_SHARED_LIBRARY_SUFFIX}"
-	DESTINATION "${INSTALL_DIR}/$<CONFIGURATION>" COMPONENT IMPORTLIBS
 )
 
 add_custom_command(TARGET ${PROJECT} POST_BUILD
