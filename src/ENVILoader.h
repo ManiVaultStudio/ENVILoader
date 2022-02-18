@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include <QString>
 
@@ -26,9 +27,12 @@ public:
 	ENVILoader(CoreInterface* core, QString datasetName);
 	~ENVILoader();
 
-	bool loadFromFile(std::string file);
+	bool loadFromFile(std::string file, float ratio, int filter);
 
 	std::string textHeader();
+
+	std::vector<float> subsampleWavelengthImage(float ratio, int imgWidth, int imgHeight, int filter, int numVars, std::vector<float> data);
+	std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data);
 
 private:
 	std::string trimString(std::string input, std::vector<char> delimiters);

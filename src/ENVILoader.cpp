@@ -12,6 +12,10 @@
 #include <QMessageBox>
 #include <QString>
 
+namespace FI {
+#include <FreeImage.h>
+}
+
 using namespace hdps;
 
 ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
@@ -20,7 +24,7 @@ ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
 {
 }
 
-bool ENVILoader::loadFromFile(std::string file)
+bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 {
 	try
 	{
@@ -181,11 +185,26 @@ bool ENVILoader::loadFromFile(std::string file)
 			throw std::runtime_error("Unable to read raw data.");
 		}
 
+		int targetWidth = imgWidth * ratio;
+		int targetHeight = imgHeight * ratio;
+		std::vector<float> subsampledData(targetWidth* targetHeight * numVars);
+
+		if (filter != -1) {
+			//subsampledData = subsampleWavelengthImage(ratio, imgWidth, imgHeight, targetWidth, targetHeight, filter, numVars, data);
+			subsampledData = nearestNeighbourFiltering(ratio, imgWidth, imgHeight, numVars, data);
+		}
+
 		auto points = _core->addDataset<Points>("Points", _datasetName);
 		//hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
 		_core->notifyDataAdded(points);
 
-		points->setData(std::move(data), numVars);
+		if (filter == -1) {
+			points->setData(std::move(data), numVars);
+		}
+		else {
+			points->setData(std::move(subsampledData), numVars);
+		}
+
 		points->setDimensionNames(wavelengths);
 
 		_core->notifyDataChanged(points);
@@ -197,7 +216,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
-		images->setImageSize(QSize(imgWidth, imgHeight));
+		images->setImageSize(QSize(targetWidth, targetHeight));
 		images->setNumberOfComponentsPerPixel(numVars);
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
@@ -217,6 +236,74 @@ bool ENVILoader::loadFromFile(std::string file)
 	return false;
 }
 
+// currently only nearest neighbour is supported
+std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data) {
+
+	int targetWidth = imgWidth * ratio;
+	int targetHeight = imgHeight * ratio;
+
+	std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
+
+	for (int v = 0; v < numVars; v++) {
+		for (int y = 0; y < targetHeight; y++) {
+			for (int x = 0; x < targetWidth; x++) {
+				subsampledData[targetWidth * numVars * (targetHeight - y - 1) + numVars * x + v] = data[imgWidth * numVars * (imgHeight - int(round(y / ratio)) - 1) + numVars * int(round(x / ratio)) + v];
+
+			}
+		}
+	}
+
+	return subsampledData;
+}
+
+std::vector<float> ENVILoader::subsampleWavelengthImage(float ratio, int imgWidth, int imgHeight, int filter, int numVars, std::vector<float> data)
+{
+	int targetWidth = imgWidth * ratio;
+	int targetHeight = imgHeight * ratio;
+
+	std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
+
+	FI::FIBITMAP* subsampledBitmap = nullptr;
+
+	const auto f = static_cast<FI::FREE_IMAGE_FILTER>(filter);
+
+	auto bitmap = FI::FreeImage_Allocate(imgWidth, imgHeight, 8);
+
+	if (filter != -1) {
+
+		for (int v = 0; v < numVars; v++) {
+			for (uint x = 0; x < imgWidth; x++) {
+				for (uint y = 0; y < imgHeight; y++) {
+					FI::RGBQUAD color;
+					auto pixelValue = (FI::BYTE)(data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] * 255);
+					color.rgbRed = pixelValue;
+					color.rgbGreen = pixelValue;
+					color.rgbBlue = pixelValue;
+					FI::FreeImage_SetPixelColor(bitmap, x, y, &color);
+				}
+			}
+
+			subsampledBitmap = FI::FreeImage_Rescale(bitmap, targetWidth, targetHeight, f);
+			int noPixels = targetWidth * targetHeight;
+
+			for (int y = 0; y < imgHeight; y++) {
+				auto line = FI::FreeImage_GetScanLine(bitmap, y);
+
+				for (int x = 0; x < targetWidth; x++) {
+					const auto pixelIndex = y * targetWidth + x;
+
+					subsampledData[v * noPixels + pixelIndex] = line[x] / 255.0f;
+					if (subsampledData[v * noPixels + pixelIndex] != 0) {
+						std::cout << subsampledData[v * noPixels + pixelIndex] << std::endl;
+					}
+				}
+			}
+		}
+	}
+
+	return subsampledData;
+
+}
 std::string ENVILoader::trimString(std::string input, std::vector<char> delimiters)
 {
 	while (input.length() > 0 && std::find(std::begin(delimiters), std::end(delimiters), input[0]) != std::end(delimiters))

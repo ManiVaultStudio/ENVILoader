@@ -1,8 +1,8 @@
 #pragma once
 
-#include <LoaderPlugin.h>
+#include "ENVILoaderModel.h"
 
-#include <QStringList>
+#include <LoaderPlugin.h>
 
 using namespace hdps::plugin;
 
@@ -24,8 +24,20 @@ public: // Inherited from LoaderPlugin
     /** Initializes the plugin */
     void init() override;
 
+    hdps::CoreInterface* getCore();
+
     /** Load high dimensional image data */
     void loadData() Q_DECL_OVERRIDE;
+
+public:
+
+    ENVILoaderModel &getENVILoaderModel() { return _ENVILoaderModel; }
+
+private:
+
+    ENVILoaderModel _ENVILoaderModel;
+
+    friend class ENVILoader;
 };
 
 /**
