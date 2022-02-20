@@ -194,7 +194,6 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		_core->notifyDataAdded(points);
 
 		if (filter == -1) {
-			std::cout << "aaaaa" << std::endl;
 			points->setData(std::move(data), numVars);
 		}
 		else {
@@ -202,6 +201,8 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		}
 
 		points->setDimensionNames(wavelengths);
+		points->setProperty("width", targetWidth);
+		points->setProperty("height", targetHeight);
 
 		_core->notifyDataChanged(points);
 
