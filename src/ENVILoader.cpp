@@ -183,16 +183,16 @@ bool ENVILoader::loadFromFile(std::string file)
 
 		auto points = _core->addDataset<Points>("Points", _datasetName);
 		//hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
-		_core->notifyDataAdded(points);
+		_core->notifyDatasetAdded(points);
 
 		points->setData(std::move(data), numVars);
 		points->setDimensionNames(wavelengths);
 
-		_core->notifyDataChanged(points);
+		_core->notifyDatasetChanged(points);
 
 		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
 		//hdps::util::DatasetRef<Images> images(_core->addData("Images", "images", points->getName()));
-		_core->notifyDataAdded(images);
+		_core->notifyDatasetAdded(images);
 
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
@@ -201,7 +201,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setNumberOfComponentsPerPixel(numVars);
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
-		_core->notifyDataChanged(images);
+		_core->notifyDatasetChanged(images);
 
 		return true;
 	}
