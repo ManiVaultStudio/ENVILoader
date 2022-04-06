@@ -201,8 +201,6 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		}
 
 		points->setDimensionNames(wavelengths);
-		points->setProperty("width", targetWidth);
-		points->setProperty("height", targetHeight);
 
 		_core->notifyDatasetChanged(points);
 
