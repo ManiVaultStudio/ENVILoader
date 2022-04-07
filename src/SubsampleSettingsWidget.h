@@ -11,9 +11,9 @@ class ENVILoaderPlugin;
 /**
  * Subsample settings widget class
  *
- * Widget class for image subsampling settings
+ * Widget class for ENVI data subsampling settings
  *
- * @author Thomas Kroes
+ * Based on Image subsampling settings
  */
 class SubsampleSettingsWidget : public QDialog
 {
@@ -28,7 +28,7 @@ public:
 
     /**
      * Initializes the widget
-     * @param imageLoaderPlugin Pointer to image loader plugin
+     * @param ENVILoaderPlugin Pointer to ENVI loader plugin
      */
     void initialize(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName);
 
@@ -37,5 +37,5 @@ private slots:
 
 private:
     QSharedPointer<Ui::SubsampleSettingsWidget>     _ui;                    /** Externally loaded UI */
-    ENVILoaderPlugin*                              _ENVILoaderPlugin;     /** Pointer to image loader plugin (for interfacing with data models) */
+    ENVILoaderPlugin*                              _ENVILoaderPlugin;     /** Pointer to ENVI loader plugin (for interfacing with data models) */
 };

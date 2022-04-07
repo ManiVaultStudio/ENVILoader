@@ -26,8 +26,15 @@ void SubsampleSettingsWidget::initialize(ENVILoaderPlugin* ENVILoaderPlugin, QSt
 
     setWindowTitle(tr("Subsample Window"));
 
-    _ui->enabledCheckbox->setChecked(true);
+    _ui->enabledCheckbox->setChecked(false);
     _ui->closeCheckBox->setChecked(true);
+
+    _ui->filterComboBox->setDisabled(true);
+    _ui->ratio25PushButton->setDisabled(true);
+    _ui->ratio50PushButton->setDisabled(true);
+    _ui->ratio75PushButton->setDisabled(true);
+    _ui->ratioSlider->setDisabled(true);
+    _ui->ratioSpinBox->setDisabled(true);
 
     QObject::connect(_ui->enabledCheckbox, &QCheckBox::stateChanged, [&](int state) {
 

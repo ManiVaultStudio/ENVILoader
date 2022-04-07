@@ -14,7 +14,7 @@ public: // Construction/destruction
 
     /**
      * Constructor
-     * @param imageLoaderPlugin Pointer to image loader plugin
+     * @param ENVILoaderPlugin Pointer to ENVI loader plugin
      */
     ENVILoaderModel(ENVILoaderPlugin* ENVILoaderPlugin);
 
@@ -24,7 +24,6 @@ public: // Construction/destruction
 public: // Inherited MVC
 
 /**
- * Returns the number of color maps in the model
  * @param parent Parent index
  */
     int rowCount(const QModelIndex& parent /* = QModelIndex() */) const override;
@@ -88,7 +87,7 @@ public:
     bool ENVILoaderModel::load(ENVILoaderPlugin* eNVILoaderPlugin, float ratio, int filter, QString fileName);
 
 private:
-    ENVILoaderPlugin* _ENVILoaderPlugin;     /** Image loader plugin instance */
+    ENVILoaderPlugin* _ENVILoaderPlugin;     /** ENVI loader plugin instance */
     //TreeItem* _root;                  /** Root tree item */
     QItemSelectionModel     _selectionModel;        /** Selection model */
     bool                    _persistData;           /** Whether updates to the model data are persisted */

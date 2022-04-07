@@ -193,9 +193,11 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		//hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
 		_core->notifyDatasetAdded(points);
 
+		// no downsampling
 		if (filter == -1) {
 			points->setData(std::move(data), numVars);
 		}
+		// subsample data
 		else {
 			points->setData(std::move(subsampledData), numVars);
 		}
@@ -231,7 +233,7 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 	return false;
 }
 
-// currently only nearest neighbour is supported
+// currently only nearest neighbour downsampling is supported
 std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data) {
 
 	int targetWidth = imgWidth * ratio;

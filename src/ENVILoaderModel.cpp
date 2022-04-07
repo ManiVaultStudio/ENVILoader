@@ -1,7 +1,6 @@
 #include "ENVILoaderModel.h"
 #include "ENVILoaderPlugin.h"
 #include "ENVILoader.h"
-//#include "Common.h"
 
 #include "Application.h"
 
@@ -16,7 +15,6 @@ using namespace hdps;
 ENVILoaderModel::ENVILoaderModel(ENVILoaderPlugin* ENVILoaderPlugin) :
     QAbstractItemModel(),
     _ENVILoaderPlugin(ENVILoaderPlugin),
-    //_root(new TreeItem(nullptr)),
     _selectionModel(this),
     _persistData(true)
 {
@@ -24,7 +22,6 @@ ENVILoaderModel::ENVILoaderModel(ENVILoaderPlugin* ENVILoaderPlugin) :
 
 ENVILoaderModel::~ENVILoaderModel()
 {
-    //delete _root;
 }
 
 int ENVILoaderModel::rowCount(const QModelIndex& parent /* = QModelIndex() */) const {

@@ -211,32 +211,7 @@
           </property>
           <item>
            <property name="text">
-            <string>Box</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Bilinear</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>BSpline</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Bicubic</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Catmull Rom</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Lanczos</string>
+            <string>Nearest Neighbour</string>
            </property>
           </item>
          </widget>
