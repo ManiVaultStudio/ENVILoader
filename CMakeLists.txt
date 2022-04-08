@@ -23,19 +23,39 @@ file(TO_CMAKE_PATH ${INSTALL_DIR_PATH} INSTALL_DIR)
 
 find_package(Qt5 COMPONENTS Widgets WebEngineWidgets REQUIRED)
 
-set(SOURCES
+set(PLUGIN_SOURCES
     src/ENVILoaderPlugin.h
     src/ENVILoaderPlugin.cpp
     src/ENVILoader.h
     src/ENVILoader.cpp
-    src/ENVILoaderPlugin.json
+    src/ENVILoaderModel.h
+    src/ENVILoaderModel.cpp
 )
 
-source_group( Plugin FILES ${SOURCES})
+set(WIDGET_SOURCES
+    src/SubsampleSettingsWidget.h
+	src/SubsampleSettingsWidget.cpp
+)
+
+set(AUX src/ENVILoaderPlugin.json)
+
+file(GLOB UIS src/*.ui)
+
+set(SOURCES 
+	${PLUGIN_SOURCES}
+	${WIDGET_SOURCES}
+)
+
+source_group( Plugin FILES ${PLUGIN_SOURCES} ${AUX})
+source_group(Widgets FILES ${WIDGET_SOURCES})
+source_group(UI FILES ${UIS})
+source_group(Aux FILES ${AUX})
 
 include_directories("${INSTALL_DIR}/$<CONFIGURATION>/include/")
 
-add_library(${PROJECT} SHARED ${SOURCES})
+QT5_WRAP_UI(UI_HEADERS ${UIS})
+
+add_library(${PROJECT} SHARED ${SOURCES} ${UIS} ${AUX})
 
 set_property(TARGET ${PROJECT} PROPERTY CXX_STANDARD 17)
 

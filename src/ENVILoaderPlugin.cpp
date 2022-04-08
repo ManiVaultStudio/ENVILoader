@@ -1,26 +1,36 @@
+#pragma once
+
 #include "ENVILoaderPlugin.h"
 
 #include "ENVILoader.h"
-
 #include "Set.h"
 #include "PointData.h"
 #include "Application.h"
+#include "SubsampleSettingsWidget.h"
 
 #include <QtCore>
 #include <QDebug>
+#include <iostream>
 
 using namespace hdps;
+using namespace std;
 
 Q_PLUGIN_METADATA(IID "nl.tudelft.ENVILoaderPlugin")
 
 ENVILoaderPlugin::ENVILoaderPlugin(const PluginFactory* factory) :
-    LoaderPlugin(factory)
+    LoaderPlugin(factory),
+    _ENVILoaderModel(this)
 {
 }
 
 void ENVILoaderPlugin::init()
 {
 }
+
+CoreInterface* ENVILoaderPlugin::getCore() {
+    return _core;
+}
+
 
 void ENVILoaderPlugin::loadData()
 {
@@ -41,10 +51,9 @@ void ENVILoaderPlugin::loadData()
 
     file.close();
 
-    QString name = fileName.mid(fileName.lastIndexOf("/")+1);
-    name.chop(4);
-    ENVILoader* loader = new ENVILoader(_core,name);
-    loader->loadFromFile(fileName.toStdString());
+    SubsampleSettingsWidget subsampleDialog;
+    subsampleDialog.initialize(this, fileName);
+    subsampleDialog.exec();
 }
 
 QIcon ENVILoaderPluginFactory::getIcon() const

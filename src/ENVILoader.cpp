@@ -20,7 +20,7 @@ ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
 {
 }
 
-bool ENVILoader::loadFromFile(std::string file)
+bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 {
 	try
 	{
@@ -181,11 +181,27 @@ bool ENVILoader::loadFromFile(std::string file)
 			throw std::runtime_error("Unable to read raw data.");
 		}
 
+		int targetWidth = imgWidth * ratio;
+		int targetHeight = imgHeight * ratio;
+		std::vector<float> subsampledData(targetWidth* targetHeight * numVars);
+
+		if (filter != -1) {
+			subsampledData = nearestNeighbourFiltering(ratio, imgWidth, imgHeight, numVars, data);
+		}
+
 		auto points = _core->addDataset<Points>("Points", _datasetName);
 		//hdps::util::DatasetRef<Points> points(_core->addData("Points", _datasetName));
 		_core->notifyDatasetAdded(points);
 
-		points->setData(std::move(data), numVars);
+		// no downsampling
+		if (filter == -1) {
+			points->setData(std::move(data), numVars);
+		}
+		// subsample data
+		else {
+			points->setData(std::move(subsampledData), numVars);
+		}
+
 		points->setDimensionNames(wavelengths);
 
 		_core->notifyDatasetChanged(points);
@@ -197,7 +213,7 @@ bool ENVILoader::loadFromFile(std::string file)
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
-		images->setImageSize(QSize(imgWidth, imgHeight));
+		images->setImageSize(QSize(targetWidth, targetHeight));
 		images->setNumberOfComponentsPerPixel(numVars);
 		images->setImageFilePaths(QStringList(QString::fromStdString(file)));
 
@@ -215,6 +231,26 @@ bool ENVILoader::loadFromFile(std::string file)
 	}
 
 	return false;
+}
+
+// currently only nearest neighbour downsampling is supported
+std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data) {
+
+	int targetWidth = imgWidth * ratio;
+	int targetHeight = imgHeight * ratio;
+
+	std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
+
+	for (int v = 0; v < numVars; v++) {
+		for (int y = 0; y < targetHeight; y++) {
+			for (int x = 0; x < targetWidth; x++) {
+				subsampledData[targetWidth * numVars * (targetHeight - y - 1) + numVars * x + v] = data[imgWidth * numVars * (imgHeight - int(round(y / ratio)) - 1) + numVars * int(round(x / ratio)) + v];
+
+			}
+		}
+	}
+
+	return subsampledData;
 }
 
 std::string ENVILoader::trimString(std::string input, std::vector<char> delimiters)
