@@ -84,7 +84,7 @@ public: // Inherited MVC
     QModelIndex parent(const QModelIndex& index) const override;
 
 public:
-    bool ENVILoaderModel::load(ENVILoaderPlugin* eNVILoaderPlugin, float ratio, int filter, QString fileName);
+    bool load(ENVILoaderPlugin* eNVILoaderPlugin, float ratio, int filter, QString fileName);
 
 private:
     ENVILoaderPlugin* _ENVILoaderPlugin;     /** ENVI loader plugin instance */

@@ -31,7 +31,7 @@ public:
 
 	std::string textHeader();
 
-	std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data);
+	std::vector<float> nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data);
 
 private:
 	std::string trimString(std::string input, std::vector<char> delimiters);
