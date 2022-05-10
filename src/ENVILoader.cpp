@@ -54,8 +54,9 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' });
 
 				int objectOpenerIdx = line.find("{");
+				int objectCloserIdx = line.find("}");
 
-				if (objectOpenerIdx < 0)
+				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
 				{
 					value = trimString(line.substr(separatorIdx + 1, line.size() - 1), { ' ', '\t', '\n' });
 				}
@@ -80,8 +81,10 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 
 		headerFile.close();
 
+		int dataType = std::stoi(parameters["data type"]);
+
 		// check limited compatibility for now
-		if (std::stoi(parameters["data type"]) != 4)
+		if (dataType != 4 && dataType != 12)
 		{
 			throw std::runtime_error("Unable to load. Data type not supported. Only 4 byte supported at this time.");
 		}
@@ -101,6 +104,11 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 
 		std::vector<QString> bandNames = tokenizeString(parameters["band names"], ',', true);
 		std::vector<QString> wavelengths = tokenizeString(parameters["wavelength"], ',', true);
+
+		if (bandNames.size() == 0)
+		{
+			bandNames = wavelengths;
+		}
 
 		assert(bandNames.size() == numVars);
 		assert(wavelengths.size() == numVars);
@@ -137,33 +145,50 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		size_t fileSize = rawFile.tellg();
 		rawFile.seekg(offset, std::ios::beg);
 
-		if(fileSize != imgWidth * imgHeight * numVars * 4)
+		int typeSize = 0;
+
+		switch (dataType) {
+		case 4:
+			typeSize = sizeof(float);
+			break;
+		case 12:
+			typeSize = sizeof(uint16_t);
+			break;
+		default:
+			typeSize = 0;
+		}
+
+		if(fileSize < imgWidth * imgHeight * numVars * typeSize)
 		{
 			throw std::runtime_error("Unable to read raw data. Fileszie does not match expected size from header.");
 		}
+		fileSize = imgWidth * imgHeight * numVars * typeSize;
 
 		if (parameters["interleave"] == "bsq")
 		{
-			float* bsqData = new float[imgWidth * imgHeight * numVars];
-			rawFile.read((char*)&bsqData[0], fileSize);
+			char* bsqData = new char[fileSize];
+			rawFile.read(bsqData, fileSize);
 
 	#pragma omp parallel for
 			for (int v = 0; v < numVars; v++)
 				for (int y = 0; y < imgHeight; y++)
 					for (int x = 0; x < imgWidth; x++)
 					{
-						data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = bsqData[imgWidth * imgHeight * v + imgWidth * y + x];
+						if(dataType == 4)
+							data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = ((float*)bsqData)[imgWidth * imgHeight * v + imgWidth * y + x];
+						else if(dataType == 12)
+							data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = static_cast<float>(((uint16_t*)bsqData)[imgWidth * imgHeight * v + imgWidth * y + x]);
 					}
 
 			delete[] bsqData;
 		}
 		else if (parameters["interleave"] == "bip")
 		{
-			rawFile.read(reinterpret_cast<char*>(data.data()), data.size() * sizeof(float));
+			rawFile.read(reinterpret_cast<char*>(data.data()), data.size() * typeSize);
 		}
 		else if (parameters["interleave"] == "bil")
 		{
-			float* bilData = new float[imgWidth * imgHeight * numVars];
+			char* bilData = new char[fileSize];
 			rawFile.read((char*)&bilData[0], fileSize);
 
 	#pragma omp parallel for
@@ -171,7 +196,10 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 				for (int v = 0; v < numVars; v++)
 					for (int x = 0; x < imgWidth; x++)
 					{
-						data[imgWidth * numVars * y + numVars * x + v] = bilData[imgWidth * numVars * y + imgWidth * v + x];
+						if (dataType == 4)
+							data[imgWidth * numVars * y + numVars * x + v] = ((float*)bilData)[imgWidth * numVars * y + imgWidth * v + x];
+						else if (dataType == 12)
+							data[imgWidth * numVars * y + numVars * x + v] = static_cast<float>(((uint16_t*)bilData)[imgWidth * numVars * y + imgWidth * v + x]);
 					}
 
 
