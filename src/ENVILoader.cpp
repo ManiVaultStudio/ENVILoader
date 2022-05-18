@@ -8,6 +8,7 @@
 #include <fstream>
 #include <map>
 #include <assert.h>
+#include <algorithm>
 
 #include <QMessageBox>
 #include <QString>
@@ -20,7 +21,7 @@ ENVILoader::ENVILoader(CoreInterface* core, QString datasetName):
 {
 }
 
-bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
+bool ENVILoader::loadFromFile(std::string file, float ratio, int filter, bool flip)
 {
 	try
 	{
@@ -83,6 +84,20 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 
 		int dataType = std::stoi(parameters["data type"]);
 
+		ENVI::Interleave interleave;
+		if (parameters["interleave"] == "bsq")
+		{
+			interleave = ENVI::bsq;
+		}
+		else if (parameters["interleave"] == "bil")
+		{
+			interleave = ENVI::bil;
+		}
+		else if (parameters["interleave"] == "bip")
+		{
+			interleave = ENVI::bip;
+		}
+
 		// check limited compatibility for now
 		if (dataType != 4 && dataType != 12)
 		{
@@ -116,7 +131,9 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 		size_t imgWidth = std::stoi(parameters["samples"]);
 		size_t imgHeight = std::stoi(parameters["lines"]);
 
-		std::vector<float> data(imgWidth * imgHeight * numVars);
+		size_t numItems = imgWidth * imgHeight * numVars;
+
+		std::vector<float> data(numItems);
 
 		// check for raw file, for now, we'll test for no extension, .cube, .img, and .raw
 		std::fstream rawFile;
@@ -138,83 +155,36 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 			throw std::runtime_error("Unable to open raw file ");
 		}
 
-		int offset = std::stoi(parameters["header offset"]);
+		size_t offset = std::stoi(parameters["header offset"]);
 
 		// get its size:
-		rawFile.seekg(offset, std::ios::end);
-		size_t fileSize = rawFile.tellg();
+		rawFile.seekg(0, std::ios::end);
+		size_t fileSize = (size_t)(rawFile.tellg()) - offset;
 		rawFile.seekg(offset, std::ios::beg);
-
-		int typeSize = 0;
 
 		switch (dataType) {
 		case 4:
-			typeSize = sizeof(float);
+			if (fileSize < imgWidth * imgHeight * numVars * sizeof(float))
+			{
+				throw std::runtime_error("Unable to read raw data. Fileszie does not match expected size from header.");
+			}
+			read<float>(rawFile, interleave, imgWidth, imgHeight, numVars, flip, data);
 			break;
 		case 12:
-			typeSize = sizeof(uint16_t);
+			if (fileSize < imgWidth * imgHeight * numVars * sizeof(uint16_t))
+			{
+				throw std::runtime_error("Unable to read raw data. Fileszie does not match expected size from header.");
+			}
+			read<uint16_t>(rawFile, interleave, imgWidth, imgHeight, numVars, flip, data);
 			break;
-		default:
-			typeSize = 0;
 		}
 
-		if(fileSize < imgWidth * imgHeight * numVars * typeSize)
-		{
-			throw std::runtime_error("Unable to read raw data. Fileszie does not match expected size from header.");
-		}
-		fileSize = imgWidth * imgHeight * numVars * typeSize;
-
-		if (parameters["interleave"] == "bsq")
-		{
-			char* bsqData = new char[fileSize];
-			rawFile.read(bsqData, fileSize);
-
-	#pragma omp parallel for
-			for (int v = 0; v < numVars; v++)
-				for (int y = 0; y < imgHeight; y++)
-					for (int x = 0; x < imgWidth; x++)
-					{
-						if(dataType == 4)
-							data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = ((float*)bsqData)[imgWidth * imgHeight * v + imgWidth * y + x];
-						else if(dataType == 12)
-							data[imgWidth * numVars * (imgHeight - y - 1) + numVars * x + v] = static_cast<float>(((uint16_t*)bsqData)[imgWidth * imgHeight * v + imgWidth * y + x]);
-					}
-
-			delete[] bsqData;
-		}
-		else if (parameters["interleave"] == "bip")
-		{
-			rawFile.read(reinterpret_cast<char*>(data.data()), data.size() * typeSize);
-		}
-		else if (parameters["interleave"] == "bil")
-		{
-			char* bilData = new char[fileSize];
-			rawFile.read((char*)&bilData[0], fileSize);
-
-	#pragma omp parallel for
-			for (int y = 0; y < imgHeight; y++)
-				for (int v = 0; v < numVars; v++)
-					for (int x = 0; x < imgWidth; x++)
-					{
-						if (dataType == 4)
-							data[imgWidth * numVars * y + numVars * x + v] = ((float*)bilData)[imgWidth * numVars * y + imgWidth * v + x];
-						else if (dataType == 12)
-							data[imgWidth * numVars * y + numVars * x + v] = static_cast<float>(((uint16_t*)bilData)[imgWidth * numVars * y + imgWidth * v + x]);
-					}
-
-
-			delete[] bilData;
-		}
-		else {
-			throw std::runtime_error("Unable to read raw data.");
-		}
-
-		int targetWidth = imgWidth * ratio;
-		int targetHeight = imgHeight * ratio;
-		std::vector<float> subsampledData(targetWidth* targetHeight * numVars);
+		size_t targetWidth = (size_t)round(imgWidth * ratio);
+		size_t targetHeight = (size_t)round(imgHeight * ratio);
+		std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
 
 		if (filter != -1) {
-			subsampledData = nearestNeighbourFiltering(ratio, imgWidth, imgHeight, numVars, data);
+			nearestNeighbourFiltering(ratio, imgWidth, targetWidth, imgHeight, targetHeight, numVars, data, subsampledData);
 		}
 
 		auto points = _core->addDataset<Points>("Points", _datasetName);
@@ -262,23 +232,27 @@ bool ENVILoader::loadFromFile(std::string file, float ratio, int filter)
 }
 
 // currently only nearest neighbour downsampling is supported
-std::vector<float> ENVILoader::nearestNeighbourFiltering(float ratio, int imgWidth, int imgHeight, int numVars, std::vector<float> data) {
+bool ENVILoader::nearestNeighbourFiltering(float ratio, size_t inWidth, size_t outWidth, size_t inHeight, size_t outHeight, size_t numVars, std::vector<float>& inData, std::vector<float>& outData)
+{
+	outData.resize(outWidth * outHeight * numVars);
 
-	int targetWidth = imgWidth * ratio;
-	int targetHeight = imgHeight * ratio;
+#pragma omp parallel for
+	for (size_t y = 0; y < outHeight; y++)
+	{
+		size_t oLine = outWidth * numVars * y;
+		size_t scaledY = std::min(inHeight -1, (size_t)round(y / ratio));
+		size_t iLine = inWidth * numVars * scaledY;
 
-	std::vector<float> subsampledData(targetWidth * targetHeight * numVars);
+		for (size_t x = 0; x < outWidth; x++)
+		{
+			size_t oPix = oLine + numVars * x;
+			size_t scaledX = std::min(inWidth - 1, (size_t)round(x / ratio));
+			size_t iPix = iLine + numVars * scaledX;
 
-	for (int v = 0; v < numVars; v++) {
-		for (int y = 0; y < targetHeight; y++) {
-			for (int x = 0; x < targetWidth; x++) {
-				subsampledData[targetWidth * numVars * (targetHeight - y - 1) + numVars * x + v] = data[imgWidth * numVars * (imgHeight - int(round(y / ratio)) - 1) + numVars * int(round(x / ratio)) + v];
-
-			}
+			std::copy(inData.begin() + iPix, inData.begin() + iPix + numVars, outData.begin() + oPix);
 		}
 	}
-
-	return subsampledData;
+	return true;
 }
 
 std::string ENVILoader::trimString(std::string input, std::vector<char> delimiters)
