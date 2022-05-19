@@ -237,7 +237,7 @@ bool ENVILoader::nearestNeighbourFiltering(float ratio, size_t inWidth, size_t o
 	outData.resize(outWidth * outHeight * numVars);
 
 #pragma omp parallel for
-	for (size_t y = 0; y < outHeight; y++)
+	for (int y = 0; y < outHeight; y++)
 	{
 		size_t oLine = outWidth * numVars * y;
 		size_t scaledY = std::min(inHeight -1, (size_t)round(y / ratio));

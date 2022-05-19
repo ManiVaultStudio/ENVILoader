@@ -34,68 +34,37 @@ public:
 	template<typename InputDataType>
 	bool read(std::fstream& file, ENVI::Interleave interleave, size_t width, size_t height, size_t bands, bool flip, std::vector<float>& output)
 	{
-		size_t size = width * height * bands;
+		const size_t imgSize = width * height;
+		const size_t size = imgSize * bands;
+		const size_t lineSize = width * bands;
 		
 		std::vector<InputDataType> rawData(size);
 		file.read((char*)rawData.data(), size * sizeof(InputDataType));
-
 		output.resize(size);
 
-		if (interleave == ENVI::bsq)
-		{
 #pragma omp parallel for
-			for (size_t v = 0; v < bands; v++)
-			{
-				size_t iLine = width * height * v;
-				for (size_t y = 0; y < height; y++)
-				{
-					size_t iPix = iLine + width * y;
-					size_t oPix = width * bands * (flip ? (height - y - 1) : y) + v;
-					for (size_t x = 0; x < width; x++)
-					{
-						output[oPix + bands * x] = static_cast<float>(rawData[iPix + x]);
-					}
-				}
-			}
-		}
-		else if (interleave == ENVI::bip)
+		for (int y = 0; y < height; y++)
 		{
-#pragma omp parallel for
-			for (size_t y = 0; y < height; y++)
+			const size_t yOffsetOut = lineSize * (flip ? (height - y - 1) : y);
+			for (size_t x = 0; x < width; x++)
 			{
-				size_t iLine = width * bands * y;
-				size_t oLine = width * bands * (flip ? (height - y - 1) : y);
-				for (size_t x = 0; x < width; x++)
-				{
-					size_t iPix = iLine + bands * x;
-					size_t oPix = oLine + bands * x;
-					for (size_t v = 0; v < bands; v++)
-					{
-						output[oPix + v] = static_cast<float>(rawData[iPix + v]);
-					}
-				}
-			}
-		}
-		else if (interleave == ENVI::bil)
-		{
-#pragma omp parallel for
-			for (size_t y = 0; y < height; y++)
-			{
-				size_t iLine = width * bands * y;
-				size_t oLine = width * bands * (flip ? (height - y - 1) : y);
+				const size_t offsetOut = yOffsetOut + bands * x;
 				for (size_t v = 0; v < bands; v++)
 				{
-					size_t iPix = iLine + width * v;
-					size_t oPix = oLine + v;
-						for (size_t x = 0; x < width; x++)
-						{
-							output[oPix + bands * x] = static_cast<float>(rawData[iPix + x]);
-						}
+					if (interleave == ENVI::bsq)
+					{
+						output[offsetOut + v] = static_cast<float>(rawData[imgSize * v + width * y + x]);
+					}
+					else if (interleave == ENVI::bip)
+					{
+						output[offsetOut + v] = static_cast<float>(rawData[lineSize * y + bands * x + v]);
+					}
+					else if (interleave == ENVI::bil)
+					{
+						output[offsetOut + v] = static_cast<float>(rawData[lineSize * y + width * v + x]);
+					}
 				}
 			}
-		}
-		else {
-			throw std::runtime_error("Unable to read raw data.");
 		}
 
 		return true;
