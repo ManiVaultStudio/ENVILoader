@@ -32,10 +32,13 @@ public:
      */
     void initialize(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName);
 
+    void updateOutputSizeIndicator();
+
 private slots:
     void on_loadButton_clicked();
 
 private:
     QSharedPointer<Ui::SubsampleSettingsWidget>     _ui;                    /** Externally loaded UI */
     ENVILoaderPlugin*                              _ENVILoaderPlugin;     /** Pointer to ENVI loader plugin (for interfacing with data models) */
+    std::pair<size_t, size_t> _extents;
 };

@@ -84,11 +84,13 @@ public: // Inherited MVC
     QModelIndex parent(const QModelIndex& index) const override;
 
 public:
-    bool load(ENVILoaderPlugin* eNVILoaderPlugin, float ratio, int filter, QString fileName);
+    std::pair<size_t, size_t> init(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName);
+
+    bool load(float ratio, int filter, bool invertYAxis);
 
 private:
     ENVILoaderPlugin* _ENVILoaderPlugin;     /** ENVI loader plugin instance */
-    //TreeItem* _root;                  /** Root tree item */
+    ENVILoader* _loader;
     QItemSelectionModel     _selectionModel;        /** Selection model */
     bool                    _persistData;           /** Whether updates to the model data are persisted */
 };

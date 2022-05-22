@@ -16,12 +16,28 @@ ENVILoaderModel::ENVILoaderModel(ENVILoaderPlugin* ENVILoaderPlugin) :
     QAbstractItemModel(),
     _ENVILoaderPlugin(ENVILoaderPlugin),
     _selectionModel(this),
-    _persistData(true)
+    _persistData(true),
+    _loader(NULL)
 {
 }
 
 ENVILoaderModel::~ENVILoaderModel()
 {
+}
+
+std::pair<size_t, size_t> ENVILoaderModel::init(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName)
+{
+    QString name = fileName.mid(fileName.lastIndexOf("/") + 1);
+    name.chop(4);
+
+    if (_loader)
+    {
+        delete _loader;
+    }
+    _loader = new ENVILoader(ENVILoaderPlugin->getCore(), name);
+    _loader->loadHeaderFromFile(fileName.toStdString());
+
+    return _loader->getExtents();
 }
 
 int ENVILoaderModel::rowCount(const QModelIndex& parent /* = QModelIndex() */) const {
@@ -94,15 +110,9 @@ QModelIndex ENVILoaderModel::parent(const QModelIndex& index) const {
     return QModelIndex();
 }
 
-bool ENVILoaderModel::load(ENVILoaderPlugin* ENVILoaderPlugin, float ratio, int filter, QString fileName) {
-    
-    QString name = fileName.mid(fileName.lastIndexOf("/") + 1);
-    name.chop(4);
-
-    auto _core = ENVILoaderPlugin->getCore();
-    
-    ENVILoader* loader = new ENVILoader(_core, name);
-    loader->loadFromFile(fileName.toStdString(), ratio, filter);
+bool ENVILoaderModel::load(float ratio, int filter, bool invertYAxis)
+{
+    _loader->loadRaw(ratio, filter, invertYAxis);
 
     return true;
 }

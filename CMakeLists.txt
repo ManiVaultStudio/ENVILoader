@@ -52,12 +52,16 @@ source_group(UI FILES ${UIS})
 source_group(Aux FILES ${AUX})
 
 include_directories("${INSTALL_DIR}/$<CONFIGURATION>/include/")
+#include_directories("external/mio/single_include")
 
 QT5_WRAP_UI(UI_HEADERS ${UIS})
 
 add_library(${PROJECT} SHARED ${SOURCES} ${UIS} ${AUX})
 
 set_property(TARGET ${PROJECT} PROPERTY CXX_STANDARD 17)
+
+add_subdirectory(external/mio)
+target_link_libraries(${PROJECT} mio::mio)
 
 target_link_libraries(${PROJECT} Qt5::Widgets)
 target_link_libraries(${PROJECT} Qt5::WebEngineWidgets)
