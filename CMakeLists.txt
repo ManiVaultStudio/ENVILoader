@@ -21,7 +21,7 @@ set(INSTALL_DIR_PATH $ENV{HDPS_INSTALL_DIR} CACHE PATH "The HDPS Install Directo
 # Normalize the incoming install path
 file(TO_CMAKE_PATH ${INSTALL_DIR_PATH} INSTALL_DIR)
 
-find_package(Qt5 COMPONENTS Widgets WebEngineWidgets REQUIRED)
+find_package(Qt6 COMPONENTS Widgets WebEngineWidgets REQUIRED)
 
 set(PLUGIN_SOURCES
     src/ENVILoaderPlugin.h
@@ -54,7 +54,7 @@ source_group(Aux FILES ${AUX})
 include_directories("${INSTALL_DIR}/$<CONFIGURATION>/include/")
 #include_directories("external/mio/single_include")
 
-QT5_WRAP_UI(UI_HEADERS ${UIS})
+QT6_WRAP_UI(UI_HEADERS ${UIS})
 
 add_library(${PROJECT} SHARED ${SOURCES} ${UIS} ${AUX})
 
@@ -63,8 +63,8 @@ set_property(TARGET ${PROJECT} PROPERTY CXX_STANDARD 17)
 add_subdirectory(external/mio)
 target_link_libraries(${PROJECT} mio::mio)
 
-target_link_libraries(${PROJECT} Qt5::Widgets)
-target_link_libraries(${PROJECT} Qt5::WebEngineWidgets)
+target_link_libraries(${PROJECT} Qt6::Widgets)
+target_link_libraries(${PROJECT} Qt6::WebEngineWidgets)
 
 if(MSVC)
     set(LIB_SUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
