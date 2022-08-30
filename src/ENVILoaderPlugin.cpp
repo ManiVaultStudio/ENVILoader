@@ -56,9 +56,9 @@ void ENVILoaderPlugin::loadData()
     subsampleDialog.exec();
 }
 
-QIcon ENVILoaderPluginFactory::getIcon() const
+QIcon ENVILoaderPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
 {
-    return Application::getIconFont("FontAwesome").getIcon("images");
+    return Application::getIconFont("FontAwesome").getIcon("images", color);
 }
 
 LoaderPlugin* ENVILoaderPluginFactory::produce()
