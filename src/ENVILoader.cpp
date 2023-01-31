@@ -308,14 +308,14 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 		}
 
 		auto points = _core->addDataset<Points>("Points", _datasetName);
-		_core->notifyDatasetAdded(points);
+		events().notifyDatasetAdded(points);
 
 		points->setData(std::move(data), _header.imageBands);
 		points->setDimensionNames(_header.wavelengths);
-		_core->notifyDatasetChanged(points);
+		events().notifyDatasetChanged(points);
 
 		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
-		_core->notifyDatasetAdded(images);
+		events().notifyDatasetAdded(images);
 
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
@@ -324,7 +324,7 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 		images->setNumberOfComponentsPerPixel(_header.imageBands);
 		images->setImageFilePaths(QStringList(QString::fromStdString(_header.rawFileName)));
 
-		_core->notifyDatasetChanged(images);
+		events().notifyDatasetChanged(images);
 
 		return true;
 	}
