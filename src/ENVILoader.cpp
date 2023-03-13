@@ -53,14 +53,14 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 			std::string key = "";
 			std::string value = "";
 
-			auto separatorIdx = line.find("=");
+			int separatorIdx = line.find("=");
 
 			if (separatorIdx >= 0)
 			{
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' });
 
-				auto objectOpenerIdx = line.find("{");
-				auto objectCloserIdx = line.find("}");
+				int objectOpenerIdx = line.find("{");
+				int objectCloserIdx = line.find("}");
 
 				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
 				{
@@ -73,7 +73,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 					{
 						value += line;
 
-						auto found = line.find("}");
+						int found = line.find("}");
 						if (found >= 0)
 						{
 							break;
