@@ -53,14 +53,14 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 			std::string key = "";
 			std::string value = "";
 
-			int separatorIdx = line.find("=");
+			auto separatorIdx = line.find("=");
 
 			if (separatorIdx >= 0)
 			{
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' });
 
-				int objectOpenerIdx = line.find("{");
-				int objectCloserIdx = line.find("}");
+				auto objectOpenerIdx = line.find("{");
+				auto objectCloserIdx = line.find("}");
 
 				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
 				{
@@ -73,7 +73,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 					{
 						value += line;
 
-						int found = line.find("}");
+						auto found = line.find("}");
 						if (found >= 0)
 						{
 							break;
@@ -273,8 +273,8 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 		}
 		else
 		{
-			targetWidth = (size_t)round(_header.imageWidth * ratio);
-			targetHeight = (size_t)round(_header.imageHeight * ratio);
+			targetWidth = static_cast<size_t>(std::round(_header.imageWidth * ratio));
+			targetHeight = static_cast<size_t>(std::round(_header.imageHeight * ratio));
 
 			switch (_header.dataType) {
 			case 1:
@@ -320,8 +320,8 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 		images->setGuiName("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
-		images->setImageSize(QSize(targetWidth, targetHeight));
-		images->setNumberOfComponentsPerPixel(_header.imageBands);
+		images->setImageSize(QSize(static_cast<int>(targetWidth), static_cast<int>(targetHeight)));
+		images->setNumberOfComponentsPerPixel(static_cast<unsigned int>(_header.imageBands));
 		images->setImageFilePaths(QStringList(QString::fromStdString(_header.rawFileName)));
 
 		events().notifyDatasetChanged(images);
