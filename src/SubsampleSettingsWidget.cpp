@@ -53,6 +53,8 @@ SubsampleSettingsWidget::SubsampleSettingsWidget(ENVILoaderPlugin& ENVILoaderPlu
 
     connect(&_enableSubsamplingToogle, &ToggleAction::toggled, this, [this](bool toggled) {
         _subsamplingRatio.setEnabled(toggled);
+
+        updateOutputSizeIndicator();
         });
 
 }
