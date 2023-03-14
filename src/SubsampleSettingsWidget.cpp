@@ -1,27 +1,70 @@
 #include "SubsampleSettingsWidget.h"
 #include "ENVILoaderPlugin.h"
 
-#include "ui_SubsampleSettingsWidget.h"
+#include <actions/GroupAction.h>
 
 #include <QDebug>
 #include <QFileDialog>
 #include <iostream>
 
-SubsampleSettingsWidget::SubsampleSettingsWidget(QWidget* parent) :
-    _ui(new Ui::SubsampleSettingsWidget()),
-    _ENVILoaderPlugin(nullptr)
+SubsampleSettingsWidget::SubsampleSettingsWidget(ENVILoaderPlugin& ENVILoaderPlugin, QString fileName, QWidget* parent) :
+    QDialog(parent),
+    _enableSubsamplingToogle(this, "Enable Subsampling"),
+    _subsamplingRatio(this),
+    _infoText(this, "Output Size"),
+    _loadTrigger(this, "Load")
 {
-    _ui->setupUi(this);
-}
+    setWindowTitle(tr("Load ENVI"));
 
-SubsampleSettingsWidget::~SubsampleSettingsWidget() = default;
+    auto& ENVILoaderModel = ENVILoaderPlugin.getENVILoaderModel();
+    _extents = ENVILoaderModel.init(&ENVILoaderPlugin, fileName);
+
+    updateOutputSizeIndicator();
+
+    _subsamplingRatio.setEnabled(false);
+
+    auto layout = new QGridLayout();
+
+    layout->addWidget(_enableSubsamplingToogle.createLabelWidget(this), 0, 0);
+    layout->addWidget(_enableSubsamplingToogle.createWidget(this), 0, 1);
+
+    layout->addWidget(_subsamplingRatio.createLabelWidget(this), 1, 0);
+    layout->addWidget(_subsamplingRatio.createWidget(this), 1, 1);
+
+    layout->addWidget(_infoText.createLabelWidget(this), 2, 0);
+    layout->addWidget(&_outputSize, 2, 1);
+
+    layout->addWidget(_loadTrigger.createLabelWidget(this), 3, 0);
+    layout->addWidget(_loadTrigger.createWidget(this), 3, 1);
+
+    layout->setContentsMargins(5, 5, 5, 5);
+
+    setLayout(layout);
+    //setFixedWidth(600);
+
+    // Accept when the load action is triggered
+    connect(&_loadTrigger, &TriggerAction::triggered, this, [this](bool checked) {
+        accept();
+        });
+
+    connect(&_subsamplingRatio.getRatioAction(), &DecimalAction::valueChanged, this, [this](const float& value) {
+        updateOutputSizeIndicator();
+        });
+
+    connect(&_enableSubsamplingToogle, &ToggleAction::toggled, this, [this](bool toggled) {
+        _subsamplingRatio.setEnabled(toggled);
+
+        updateOutputSizeIndicator();
+        });
+
+}
 
 void SubsampleSettingsWidget::updateOutputSizeIndicator()
 {
     QString label;
-    if (_ui->enabledCheckbox->isChecked())
+    if (_enableSubsamplingToogle.isChecked())
     {
-        float ratio = _ui->ratioSpinBox->value() * 0.01f;
+        float ratio = _subsamplingRatio.getRatioAction().getValue() * 0.01f;
 
         label = QString::number((size_t)round(_extents.first*ratio)) + " x " + QString::number((size_t)round(_extents.second*ratio));
     }
@@ -29,99 +72,6 @@ void SubsampleSettingsWidget::updateOutputSizeIndicator()
     {
         label = QString::number(_extents.first) + " x " + QString::number(_extents.second);
     }
-    _ui->outputSize->setText(label);
+    _outputSize.setText(label);
 }
 
-void SubsampleSettingsWidget::initialize(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName)
-{
-    _ENVILoaderPlugin = ENVILoaderPlugin;
-
-    auto& ENVILoaderModel = _ENVILoaderPlugin->getENVILoaderModel();
-    _extents = ENVILoaderModel.init(_ENVILoaderPlugin, fileName);
-
-    float ratioSub;
-    int filter;
-
-    setWindowTitle(tr("Load ENVI"));
-
-    _ui->enabledCheckbox->setChecked(false);
-//    _ui->closeCheckBox->setChecked(true);
-
-//    _ui->filterComboBox->setDisabled(true);
-    _ui->ratio25PushButton->setDisabled(true);
-    _ui->ratio50PushButton->setDisabled(true);
-    _ui->ratio75PushButton->setDisabled(true);
-    _ui->ratioSlider->setDisabled(true);
-    _ui->ratioSpinBox->setDisabled(true);
-
-    updateOutputSizeIndicator();
-
-    QObject::connect(_ui->enabledCheckbox, &QCheckBox::stateChanged, [&](int state) {
-
-        if (state == 0) {
-//            _ui->filterComboBox->setDisabled(true);
-            _ui->ratio25PushButton->setDisabled(true);
-            _ui->ratio50PushButton->setDisabled(true);
-            _ui->ratio75PushButton->setDisabled(true);
-            _ui->ratioSlider->setDisabled(true);
-            _ui->ratioSpinBox->setDisabled(true);
-        }
-        else if (state == 2) {
-//            _ui->filterComboBox->setDisabled(false);
-            _ui->ratio25PushButton->setDisabled(false);
-            _ui->ratio50PushButton->setDisabled(false);
-            _ui->ratio75PushButton->setDisabled(false);
-            _ui->ratioSlider->setDisabled(false);
-            _ui->ratioSpinBox->setDisabled(false);
-        }
-
-        updateOutputSizeIndicator();
-    });
-
-    connect(_ui->ratio25PushButton, &QPushButton::clicked, [&]() {
-        _ui->ratioSlider->setValue(2500.0);
-        _ui->ratioSpinBox->setValue(25.0);
-        });
-
-    connect(_ui->ratio50PushButton, &QPushButton::clicked, [&]() {
-        _ui->ratioSlider->setValue(5000.0);
-        _ui->ratioSpinBox->setValue(50.0);
-        });
-
-    connect(_ui->ratio75PushButton, &QPushButton::clicked, [&]() {
-        _ui->ratioSlider->setValue(7500.0);
-        _ui->ratioSpinBox->setValue(75.0);
-        });
-
-    connect(_ui->ratioSlider, &QSlider::valueChanged, [&](int ratio) {
-        _ui->ratioSpinBox->setValue((double)ratio*0.01);
-        });
-
-    connect(_ui->ratioSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double ratio) {
-        _ui->ratioSlider->setValue((int)(ratio*100));
-        updateOutputSizeIndicator();
-        });
-
-    QObject::connect(_ui->loadButton, &QPushButton::clicked, [&]() {
-        
-        if (_ui->enabledCheckbox->isChecked()) {
-            filter = 1;// _ui->filterComboBox->currentIndex();
-            ratioSub = _ui->ratioSpinBox->value() * 0.01f;
-        }
-        else {
-            filter = -1;
-            ratioSub = 1;
-        }
-
-        // load file with given subsampling settings
-        const auto loaded = ENVILoaderModel.load(ratioSub, filter, true);
-
-        if (loaded && _ENVILoaderPlugin->getSetting("GUI/CloseAfterLoaded", true).toBool())
-            this->close();
-        });
-
-    if (_ENVILoaderPlugin->getSetting("GUI/CloseAfterLoaded", true).toBool()) {
-        this->close();
-    }
-
-}

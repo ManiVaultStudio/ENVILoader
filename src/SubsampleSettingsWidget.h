@@ -1,6 +1,12 @@
 #pragma once
 
 #include <QDialog>
+#include <QLabel>
+
+#include "SubsamplingRatioAction.h"
+#include <actions/ToggleAction.h>
+#include <actions/StringAction.h>
+#include <actions/TriggerAction.h>
 
 namespace Ui {
     class SubsampleSettingsWidget;
@@ -22,23 +28,20 @@ public:
      * Constructor
      * @param parent Parent widget
      */
-    SubsampleSettingsWidget(QWidget* parent = nullptr);
+    SubsampleSettingsWidget(ENVILoaderPlugin& ENVILoaderPlugin, QString fileName, QWidget* parent = nullptr);
 
-    ~SubsampleSettingsWidget() override;
-
-    /**
-     * Initializes the widget
-     * @param ENVILoaderPlugin Pointer to ENVI loader plugin
-     */
-    void initialize(ENVILoaderPlugin* ENVILoaderPlugin, QString fileName);
-
-    void updateOutputSizeIndicator();
-
-private slots:
-    void on_loadButton_clicked();
+    bool getEnableSubsamplingToogle() { return _enableSubsamplingToogle.isChecked(); }
+    float getRatio() { return _subsamplingRatio.getRatioAction().getValue() * 0.01f; }
 
 private:
-    QSharedPointer<Ui::SubsampleSettingsWidget>     _ui;                    /** Externally loaded UI */
-    ENVILoaderPlugin*                              _ENVILoaderPlugin;     /** Pointer to ENVI loader plugin (for interfacing with data models) */
-    std::pair<size_t, size_t> _extents;
+    void updateOutputSizeIndicator();
+
+private:
+    std::pair<size_t, size_t>   _extents;
+
+    ToggleAction                _enableSubsamplingToogle;
+    SubsamplingRatioAction      _subsamplingRatio;
+    StringAction                _infoText;
+    TriggerAction               _loadTrigger;
+    QLabel                      _outputSize;
 };
