@@ -37,23 +37,25 @@ set(WIDGET_SOURCES
 	src/SubsampleSettingsWidget.cpp
 )
 
-set(AUX src/ENVILoaderPlugin.json)
+set(ACTIONS_SOURCES
+    src/SubsamplingRatioAction.h
+	src/SubsamplingRatioAction.cpp
+)
 
-file(GLOB UIS src/*.ui)
+set(AUX src/ENVILoaderPlugin.json)
 
 set(SOURCES 
 	${PLUGIN_SOURCES}
 	${WIDGET_SOURCES}
+	${ACTIONS_SOURCES}
 )
 
 source_group(Plugin FILES ${PLUGIN_SOURCES} ${AUX})
 source_group(Widgets FILES ${WIDGET_SOURCES})
-source_group(UI FILES ${UIS})
+source_group(Actions FILES ${ACTIONS_SOURCES})
 source_group(Aux FILES ${AUX})
 
-QT6_WRAP_UI(UI_HEADERS ${UIS})
-
-add_library(${ENVIPROJECT} SHARED ${SOURCES} ${UIS} ${AUX})
+add_library(${ENVIPROJECT} SHARED ${SOURCES} ${AUX})
 
 target_include_directories(${ENVIPROJECT} PRIVATE "${INSTALL_DIR}/$<CONFIGURATION>/include/")
 

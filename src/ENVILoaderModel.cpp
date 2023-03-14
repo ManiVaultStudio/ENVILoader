@@ -113,6 +113,5 @@ QModelIndex ENVILoaderModel::parent(const QModelIndex& index) const {
 bool ENVILoaderModel::load(float ratio, int filter, bool invertYAxis)
 {
     _loader->loadRaw(ratio, filter, invertYAxis);
-
     return true;
 }

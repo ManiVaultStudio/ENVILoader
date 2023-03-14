@@ -51,9 +51,24 @@ void ENVILoaderPlugin::loadData()
 
     file.close();
 
-    SubsampleSettingsWidget subsampleDialog;
-    subsampleDialog.initialize(this, fileName);
-    subsampleDialog.exec();
+
+    SubsampleSettingsWidget subsampleDialog(*this, fileName);
+    int res = subsampleDialog.exec();
+
+    if (res == QDialog::Accepted) {
+        int filter = -1;
+        float ratioSub = 1;
+
+        if (subsampleDialog.getEnableSubsamplingToogle()) {
+            filter = 1;
+            ratioSub = subsampleDialog.getRatio();
+        }
+
+        // load file with given subsampling settings
+        const auto loaded = _ENVILoaderModel.load(ratioSub, filter, true);
+
+    }
+
 }
 
 QIcon ENVILoaderPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
