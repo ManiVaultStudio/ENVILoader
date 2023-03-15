@@ -41,6 +41,4 @@ public:
 private:
     DecimalAction           _ratioAction;               /** Subsampling ratio action */
     TriggersAction          _defaultRatiosAction;       /** Default subsampling ratios action */
-
-    friend class Widget;
 };
