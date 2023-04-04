@@ -4,7 +4,7 @@
 
 #include "ENVILoader.h"
 #include "Set.h"
-#include "PointData.h"
+#include "PointData/PointData.h"
 #include "Application.h"
 #include "SubsampleSettingsWidget.h"
 

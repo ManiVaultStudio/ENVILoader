@@ -1,7 +1,7 @@
 #include "ENVILoader.h"
 
 #include "CoreInterface.h"
-#include "PointData.h"
+#include "PointData/PointData.h"
 #include "ImageData/Images.h"
 
 #include <iostream>
