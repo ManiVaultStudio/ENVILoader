@@ -53,14 +53,14 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 			std::string key = "";
 			std::string value = "";
 
-			int separatorIdx = line.find("=");
+			size_t separatorIdx = line.find("=");
 
 			if (separatorIdx >= 0)
 			{
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' });
 
-				int objectOpenerIdx = line.find("{");
-				int objectCloserIdx = line.find("}");
+				size_t objectOpenerIdx = line.find("{");
+				size_t objectCloserIdx = line.find("}");
 
 				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
 				{
@@ -73,7 +73,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 					{
 						value += line;
 
-						int found = line.find("}");
+						size_t found = line.find("}");
 						if (found >= 0)
 						{
 							break;
@@ -312,19 +312,19 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 
 		points->setData(std::move(data), _header.imageBands);
 		points->setDimensionNames(_header.wavelengths);
-		events().notifyDatasetChanged(points);
+		events().notifyDatasetDataChanged(points);
 
 		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
 		events().notifyDatasetAdded(images);
 
-		images->setGuiName("Images");
+		images->setText("Images");
 		images->setType(ImageData::Type::Stack);
 		images->setNumberOfImages(1);
 		images->setImageSize(QSize(static_cast<int>(targetWidth), static_cast<int>(targetHeight)));
 		images->setNumberOfComponentsPerPixel(static_cast<unsigned int>(_header.imageBands));
 		images->setImageFilePaths(QStringList(QString::fromStdString(_header.rawFileName)));
 
-		events().notifyDatasetChanged(images);
+		events().notifyDatasetDataChanged(images);
 
 		return true;
 	}

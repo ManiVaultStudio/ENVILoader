@@ -17,8 +17,8 @@ const QMap<SubsamplingRatioAction::Ratio, float> SubsamplingRatioAction::default
 });
 
 SubsamplingRatioAction::SubsamplingRatioAction(QObject* parent) :
-    WidgetAction(parent),
-    _ratioAction(this, "Ratio", 1.0f, 100.0f, 50.0f, 50.0f, 1),
+    WidgetAction(parent, "SubsamplingRatioAction"),
+    _ratioAction(this, "Ratio", 1.0f, 100.0f, 50.0f, 50.0f),
     _defaultRatiosAction(this, "Default ratios", triggers.values().toVector())
 {
     setText("Ratio");
