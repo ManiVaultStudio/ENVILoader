@@ -47,6 +47,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 			throw std::runtime_error("Unable to load. Not an ENVI file.");
 		}
 
+		// Note: all key-value paris must be in one line 
 		std::map<std::string, std::string> parameters;
 		while (std::getline(headerFile, line)) {
 
@@ -57,14 +58,14 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 
 			if (separatorIdx >= 0)
 			{
-				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' });
+				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' , '\r' });
 
 				size_t objectOpenerIdx = line.find("{");
 				size_t objectCloserIdx = line.find("}");
 
 				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
 				{
-					value = trimString(line.substr(separatorIdx + 1, line.size() - 1), { ' ', '\t', '\n' });
+					value = trimString(line.substr(separatorIdx + 1, line.size() - 1), { ' ', '\t', '\n' , '\r' });
 				}
 				else
 				{
@@ -118,8 +119,8 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 
 		_header.imageBands = std::stoi(parameters["bands"]);
 
-		parameters["band names"] = trimString(parameters["band names"], { '{', '}', ' ', '\t', '\n' });
-		parameters["wavelength"] = trimString(parameters["wavelength"], { '{', '}', ' ', '\t', '\n' });
+		parameters["band names"] = trimString(parameters["band names"], { '{', '}', ' ', '\t', '\n' , '\r' });
+		parameters["wavelength"] = trimString(parameters["wavelength"], { '{', '}', ' ', '\t', '\n' , '\r' });
 
 		_header.bandNames = tokenizeString(parameters["band names"], ',', true);
 		_header.wavelengths = tokenizeString(parameters["wavelength"], ',', true);
