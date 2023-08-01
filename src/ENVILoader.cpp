@@ -56,14 +56,14 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 
 			size_t separatorIdx = line.find("=");
 
-			if (separatorIdx >= 0)
+			if (separatorIdx != std::string::npos)
 			{
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' , '\r' });
 
 				size_t objectOpenerIdx = line.find("{");
 				size_t objectCloserIdx = line.find("}");
 
-				if (objectOpenerIdx < 0 || objectCloserIdx >= 0)
+				if (objectOpenerIdx == std::string::npos || objectCloserIdx != std::string::npos)
 				{
 					value = trimString(line.substr(separatorIdx + 1, line.size() - 1), { ' ', '\t', '\n' , '\r' });
 				}
@@ -75,7 +75,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 						value += line;
 
 						size_t found = line.find("}");
-						if (found >= 0)
+						if (found != std::string::npos)
 						{
 							break;
 						}
