@@ -59,6 +59,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 			if (separatorIdx != std::string::npos)
 			{
 				key = trimString(line.substr(0, separatorIdx), { ' ', '\t', '\n' , '\r' });
+				transform(key.begin(), key.end(), key.begin(), ::tolower);
 
 				size_t objectOpenerIdx = line.find("{");
 				size_t objectCloserIdx = line.find("}");
@@ -82,7 +83,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 					}
 				}
 			}
-
+			
 			parameters[key] = value;
 		}
 
@@ -112,7 +113,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 		{
 			throw std::runtime_error("Unable to load. Byte order not supported.");
 		}
-		if (parameters["file type"] != "ENVI Standard")
+		if (!((parameters["file type"] == "ENVI Standard") || (parameters["file type"] == "ENVI")))
 		{
 			throw std::runtime_error("Unable to load. File type is not ENVI Standard.");
 		}
@@ -235,9 +236,9 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 
 		size_t numItems = _header.imageWidth * _header.imageHeight * _header.imageBands;
 		size_t numBytes = numItems * _header.typeSize;
-
+		
 		mio::mmap_source mmapSource(_header.rawFileName, _header.rawOffset, numBytes);
-
+		
 		std::vector<float> data;
 
 		if (filter < 0)
@@ -312,7 +313,10 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 		events().notifyDatasetAdded(points);
 
 		points->setData(std::move(data), _header.imageBands);
-		points->setDimensionNames(_header.wavelengths);
+		if (_header.wavelengths.size()> 0)
+		{
+			points->setDimensionNames(_header.wavelengths);
+		}
 		events().notifyDatasetDataChanged(points);
 
 		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
