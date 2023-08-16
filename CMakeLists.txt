@@ -60,6 +60,7 @@ target_include_directories(${ENVIPROJECT} PRIVATE "${INSTALL_DIR}/$<CONFIGURATIO
 
 target_compile_features(${ENVIPROJECT} PRIVATE cxx_std_17)
 
+set(INSTALL_SUBPROJECTS OFF)
 add_subdirectory(external/mio)
 target_link_libraries(${ENVIPROJECT} PRIVATE mio::mio)
 
