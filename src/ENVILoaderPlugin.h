@@ -4,7 +4,7 @@
 
 #include <LoaderPlugin.h>
 
-using namespace hdps::plugin;
+using namespace mv::plugin;
 
 /**
  * ENVI loader plugin class
@@ -24,7 +24,7 @@ public: // Inherited from LoaderPlugin
     /** Initializes the plugin */
     void init() override;
 
-    hdps::CoreInterface* getCore();
+    mv::CoreInterface* getCore();
 
     /** Load high dimensional image data */
     void loadData() Q_DECL_OVERRIDE;
@@ -46,7 +46,7 @@ private:
  */
 class ENVILoaderPluginFactory : public LoaderPluginFactory
 {
-    Q_INTERFACES(hdps::plugin::LoaderPluginFactory hdps::plugin::PluginFactory)
+    Q_INTERFACES(mv::plugin::LoaderPluginFactory mv::plugin::PluginFactory)
     Q_OBJECT
     Q_PLUGIN_METADATA(IID   "nl.tudelft.ENVILoader"
                       FILE  "ENVILoaderPlugin.json")
@@ -69,5 +69,5 @@ public:
     LoaderPlugin* produce() override;
 
 	/** Returns the supported data types */
-	hdps::DataTypes supportedDataTypes() const override;
+	mv::DataTypes supportedDataTypes() const override;
 };

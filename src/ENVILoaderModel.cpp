@@ -10,7 +10,7 @@
 #include <QPainter>
 #include <QIcon>
 
-using namespace hdps;
+using namespace mv;
 
 ENVILoaderModel::ENVILoaderModel(ENVILoaderPlugin* ENVILoaderPlugin) :
     QAbstractItemModel(),

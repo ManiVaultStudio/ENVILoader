@@ -15,7 +15,7 @@
 
 #include "external/mio/single_include/mio/mio.hpp"
 
-using namespace hdps;
+using namespace mv;
 
 ENVILoader::ENVILoader(CoreInterface* core, QString datasetName) :
 	_core(core),

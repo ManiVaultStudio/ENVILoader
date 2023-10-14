@@ -32,7 +32,7 @@ namespace ENVI {
 	};
 }
 
-using namespace hdps;
+using namespace mv;
 
 class ENVILoader
 {

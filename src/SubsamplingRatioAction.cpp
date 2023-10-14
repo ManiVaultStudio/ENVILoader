@@ -2,7 +2,7 @@
 
 #include <QHBoxLayout>
 
-using namespace hdps::gui;
+using namespace mv::gui;
 
 const QMap<SubsamplingRatioAction::Ratio, TriggersAction::Trigger> SubsamplingRatioAction::triggers = QMap<SubsamplingRatioAction::Ratio, TriggersAction::Trigger>({
     { SubsamplingRatioAction::Perc25, TriggersAction::Trigger("25.0%", "Scale down to 25%") },

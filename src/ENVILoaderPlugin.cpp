@@ -12,7 +12,7 @@
 #include <QDebug>
 #include <iostream>
 
-using namespace hdps;
+using namespace mv;
 using namespace std;
 
 Q_PLUGIN_METADATA(IID "nl.tudelft.ENVILoaderPlugin")
