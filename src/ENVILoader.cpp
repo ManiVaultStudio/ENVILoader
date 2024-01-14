@@ -308,15 +308,13 @@ bool ENVILoader::loadRaw(float ratio, int filter, bool flip)
 			}
 		}
 
-		auto points = _core->addDataset<Points>("Points", _datasetName);
-		events().notifyDatasetAdded(points);
+		auto points = mv::data().createDataset<Points>("Points", _datasetName);
 
 		points->setData(std::move(data), _header.imageBands);
 		points->setDimensionNames(_header.wavelengths);
 		events().notifyDatasetDataChanged(points);
 
-		auto images = _core->addDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
-		events().notifyDatasetAdded(images);
+		auto images = mv::data().createDataset<Images>("Images", "images", Dataset<DatasetImpl>(*points));
 
 		images->setText("Images");
 		images->setType(ImageData::Type::Stack);
