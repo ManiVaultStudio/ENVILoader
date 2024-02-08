@@ -211,6 +211,8 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 	}
 
 	_headerLoaded = true;
+
+	return _headerLoaded;
 }
 
 std::pair<size_t, size_t> ENVILoader::getExtents()
