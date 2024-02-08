@@ -1,14 +1,14 @@
 #include "ENVILoader.h"
 
 #include "CoreInterface.h"
-#include "PointData/PointData.h"
 #include "ImageData/Images.h"
+#include "PointData/PointData.h"
 
-#include <iostream>
-#include <fstream>
-#include <map>
-#include <assert.h>
 #include <algorithm>
+#include <assert.h>
+#include <fstream>
+#include <iostream>
+#include <map>
 
 #include <QMessageBox>
 #include <QString>

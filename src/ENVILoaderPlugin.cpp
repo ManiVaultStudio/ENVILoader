@@ -2,15 +2,13 @@
 
 #include "ENVILoaderPlugin.h"
 
-#include "ENVILoader.h"
-#include "Set.h"
-#include "PointData/PointData.h"
 #include "Application.h"
+#include "PointData/PointData.h"
+
 #include "SubsampleSettingsWidget.h"
 
-#include <QtCore>
 #include <QDebug>
-#include <iostream>
+#include <QtCore>
 
 using namespace mv;
 using namespace std;
