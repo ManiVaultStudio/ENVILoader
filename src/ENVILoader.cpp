@@ -141,7 +141,7 @@ bool ENVILoader::loadHeaderFromFile(std::string file)
 		std::vector< std::string> possibleExtensions = { "", ".cube", ".img", ".raw" };
 		std::string baseFileName = file;
 		baseFileName = baseFileName.erase(baseFileName.size() - 4, 4);
-		for (auto extension : possibleExtensions)
+		for (const auto& extension : possibleExtensions)
 		{
 			rawFile.open(baseFileName + extension, std::ios::binary | std::ios::in);
 			if (rawFile.good())
