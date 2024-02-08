@@ -36,8 +36,6 @@ public:
 private:
 
     ENVILoaderModel _ENVILoaderModel;
-
-    friend class ENVILoader;
 };
 
 /**
