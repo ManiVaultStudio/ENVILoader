@@ -1,10 +1,9 @@
 #ifndef ENVI_LOADER
 #define ENVI_LOADER
 
+#include <fstream>
 #include <string>
 #include <vector>
-#include <tuple>
-#include <fstream>
 
 #include <QString>
 

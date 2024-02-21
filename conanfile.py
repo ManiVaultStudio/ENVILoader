@@ -12,15 +12,15 @@ class ENVILoaderConan(ConanFile):
     """Class to package the ENVILoader plugin using conan
 
     Packages both RELEASE and DEBUG.
-    Uses rules_support (github.com/hdps/rulessupport) to derive
+    Uses rules_support (github.com/ManiVault/rulessupport) to derive
     versioninfo based on the branch naming convention
-    as described in https://github.com/hdps/core/wiki/Branch-naming-rules
+    as described in https://github.com/ManiVault/core/wiki/Branch-naming-rules
     """
 
     name = "ENVILoaderPlugin"
-    description = "Load ENVI data into the HDPS framework. "
-    topics = ("hdps", "plugin", "data", "ENVI loader")
-    url = "https://github.com/hdps/ENVILoader"
+    description = "Load ENVI data into the ManiVault framework. "
+    topics = ("ManiVault", "plugin", "data", "ENVI loader")
+    url = "https://github.com/ManiVault/ENVILoader"
     author = "B. van Lew b.van_lew@lumc.nl, adapted by T. Höllt t.hollt-1@tudelft.nl"  # conan recipe author
     license = "MIT"  # conan recipe license
 
@@ -34,7 +34,7 @@ class ENVILoaderConan(ConanFile):
 
     scm = {
         "type": "git",
-        "subfolder": "hdps/ENVILoader",
+        "subfolder": "ManiVault/ENVILoader",
         "url": "auto",
         "revision": "auto",
     }
@@ -105,17 +105,17 @@ class ENVILoaderConan(ConanFile):
 
     def _configure_cmake(self):
         cmake = CMake(self)
-        cmake.configure(build_script_folder="hdps/ENVILoader")
+        cmake.configure(build_script_folder="ManiVault/ENVILoader")
         cmake.verbose = True
         return cmake
 
     def build(self):
         print("Build OS is : ", self.settings.os)
 
-        # The ENVILoader build expects the HDPS package to be in this install dir
-        hdps_pkg_root = self.deps_cpp_info["hdps-core"].rootpath
+        # The ENVILoader build expects the ManiVault package to be in this install dir
+        mv_pkg_root = self.deps_cpp_info["hdps-core"].rootpath
         print("Install dir type: ", self.install_dir)
-        shutil.copytree(hdps_pkg_root, self.install_dir)
+        shutil.copytree(mv_pkg_root, self.install_dir)
 
         cmake = self._configure_cmake()
         cmake.build(build_type="Debug")

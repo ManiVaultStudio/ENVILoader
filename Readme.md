@@ -1,14 +1,11 @@
 
-# ENVILoaderPlugin
-Loader plugin for high dimensional images in ENVI format the HDPS framework.
+# ENVILoaderPlugin [![Actions Status](https://github.com/ManiVaultStudio/ENVILoader/actions/workflows/build.yml/badge.svg)](https://github.com/ManiVaultStudio/ENVILoader/actions)
+Loader plugin for high dimensional images in [ENVI format](https://www.nv5geospatialsoftware.com/docs/enviimagefiles.html) the [ManiVault](https://github.com/ManiVaultStudio/core) framework.
 
-Note: In the header file, all key-value paris must be in one line.
+Note: In the ENVI header file, all key-value paris must be in one line.
 
-# CI-CD
-Pushing to the hdps/ENVILoaderPlugin develop will trigger the conan CI_CD to start a build via the configured Webhook.
+```bash
+git clone --recurse-submodules git@github.com:ManiVaultStudio/ENVILoader.git
+```
 
-Linux & Macos (Travis) | Windows (Appveyor)
---- | ---
-[![Build Status](https://travis-ci.com/bldrvnlw/conan-ENVILoaderPlugin.svg?branch=master)](https://travis-ci.com/bldrvnlw/conan-ENVILoaderPlugin) | [![Build status](https://ci.appveyor.com/api/projects/status/l5d1vamvwo0aa3jq?svg=true)](https://ci.appveyor.com/project/bldrvnlw/conan-ENVIloaderplugin)
-
-
+Currently, this loader supports the binary file extensions `.cube`, `.img`, `.raw` and no (empty) file extension.
