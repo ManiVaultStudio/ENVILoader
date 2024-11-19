@@ -107,6 +107,11 @@ add_custom_command(TARGET ${ENVIPROJECT} POST_BUILD
 	--prefix ${ManiVault_INSTALL_DIR}/$<CONFIGURATION>
 )
 
+set_target_properties(${ENVIPROJECT}
+    PROPERTIES
+    FOLDER LoaderPlugins
+)
+
 # -----------------------------------------------------------------------------
 # Miscellaneous
 # -----------------------------------------------------------------------------
