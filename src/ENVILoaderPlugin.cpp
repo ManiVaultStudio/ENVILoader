@@ -67,11 +67,6 @@ void ENVILoaderPlugin::loadData()
 
 }
 
-QIcon ENVILoaderPluginFactory::getIcon(const QColor& color /*= Qt::black*/) const
-{
-    return Application::getIconFont("FontAwesome").getIcon("images", color);
-}
-
 LoaderPlugin* ENVILoaderPluginFactory::produce()
 {
     return new ENVILoaderPlugin(this);
