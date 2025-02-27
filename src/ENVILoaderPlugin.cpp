@@ -17,6 +17,7 @@ ENVILoaderPlugin::ENVILoaderPlugin(const PluginFactory* factory) :
     LoaderPlugin(factory),
     _ENVILoaderModel(this)
 {
+    setIconByName("images");
 }
 
 void ENVILoaderPlugin::init()
