@@ -52,7 +52,9 @@ set(ACTIONS_SOURCES
     src/SubsamplingRatioAction.cpp
 )
 
-set(AUX src/ENVILoaderPlugin.json)
+set(AUX 
+    PluginInfo.json
+)
 
 set(SOURCES 
     ${PLUGIN_SOURCES}
@@ -107,10 +109,7 @@ add_custom_command(TARGET ${ENVIPROJECT} POST_BUILD
 	--prefix ${ManiVault_INSTALL_DIR}/$<CONFIGURATION>
 )
 
-set_target_properties(${ENVIPROJECT}
-    PROPERTIES
-    FOLDER LoaderPlugins
-)
+mv_handle_plugin_config(${ENVIPROJECT})
 
 # -----------------------------------------------------------------------------
 # Miscellaneous
