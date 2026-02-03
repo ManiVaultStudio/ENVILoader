@@ -16,12 +16,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /DWIN32 /EHsc /MP /permissive- /Zc:__cplusplus")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif(MSVC)
+endif()
 
 # -----------------------------------------------------------------------------
 # Dependencies
@@ -117,7 +117,7 @@ mv_handle_plugin_config(${ENVIPROJECT})
 # -----------------------------------------------------------------------------
 # Miscellaneous
 # -----------------------------------------------------------------------------
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	# Automatically set the debug environment (command + working directory) for MSVC in debug mode
 	set_property(TARGET ${ENVIPROJECT} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY  $<$<CONFIG:DEBUG>:${ManiVault_INSTALL_DIR}/debug>)
 	set_property(TARGET ${ENVIPROJECT} PROPERTY VS_DEBUGGER_COMMAND $<$<CONFIG:DEBUG>:"${ManiVault_INSTALL_DIR}/debug/ManiVault Studio.exe">)
