@@ -4,7 +4,10 @@ cmake_minimum_required(VERSION 3.22)
 # ENVI Loader Plugin
 # -----------------------------------------------------------------------------
 set(ENVIPROJECT "ENVILoader")
-PROJECT(${ENVIPROJECT})
+PROJECT(${ENVIPROJECT}
+        DESCRIPTION "Loader plugin for high dimensional images in ENVI format for the ManiVault framework"
+        LANGUAGES CXX
+)
 
 # -----------------------------------------------------------------------------
 # CMake Options
@@ -13,12 +16,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /DWIN32 /EHsc /MP /permissive- /Zc:__cplusplus")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /MD")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-endif(MSVC)
+endif()
 
 # -----------------------------------------------------------------------------
 # Dependencies
@@ -52,7 +55,9 @@ set(ACTIONS_SOURCES
     src/SubsamplingRatioAction.cpp
 )
 
-set(AUX src/ENVILoaderPlugin.json)
+set(AUX 
+    PluginInfo.json
+)
 
 set(SOURCES 
     ${PLUGIN_SOURCES}
@@ -107,15 +112,12 @@ add_custom_command(TARGET ${ENVIPROJECT} POST_BUILD
 	--prefix ${ManiVault_INSTALL_DIR}/$<CONFIGURATION>
 )
 
-set_target_properties(${ENVIPROJECT}
-    PROPERTIES
-    FOLDER LoaderPlugins
-)
+mv_handle_plugin_config(${ENVIPROJECT})
 
 # -----------------------------------------------------------------------------
 # Miscellaneous
 # -----------------------------------------------------------------------------
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	# Automatically set the debug environment (command + working directory) for MSVC in debug mode
 	set_property(TARGET ${ENVIPROJECT} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY  $<$<CONFIG:DEBUG>:${ManiVault_INSTALL_DIR}/debug>)
 	set_property(TARGET ${ENVIPROJECT} PROPERTY VS_DEBUGGER_COMMAND $<$<CONFIG:DEBUG>:"${ManiVault_INSTALL_DIR}/debug/ManiVault Studio.exe">)

@@ -47,7 +47,7 @@ class ENVILoaderPluginFactory : public LoaderPluginFactory
     Q_INTERFACES(mv::plugin::LoaderPluginFactory mv::plugin::PluginFactory)
     Q_OBJECT
     Q_PLUGIN_METADATA(IID   "nl.tudelft.ENVILoader"
-                      FILE  "ENVILoaderPlugin.json")
+                      FILE  "PluginInfo.json")
 
 public:
     /** Default constructor */
