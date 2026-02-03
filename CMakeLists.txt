@@ -4,7 +4,10 @@ cmake_minimum_required(VERSION 3.22)
 # ENVI Loader Plugin
 # -----------------------------------------------------------------------------
 set(ENVIPROJECT "ENVILoader")
-PROJECT(${ENVIPROJECT})
+PROJECT(${ENVIPROJECT}
+        DESCRIPTION "Loader plugin for high dimensional images in ENVI format for the ManiVault framework"
+        LANGUAGES CXX
+)
 
 # -----------------------------------------------------------------------------
 # CMake Options
