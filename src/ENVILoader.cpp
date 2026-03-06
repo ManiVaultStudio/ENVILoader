@@ -13,7 +13,7 @@
 #include <QMessageBox>
 #include <QString>
 
-#include "external/mio/single_include/mio/mio.hpp"
+#include "mio/mio.hpp"
 
 using namespace mv;
 

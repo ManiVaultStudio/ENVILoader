@@ -30,8 +30,7 @@ find_package(Qt6 COMPONENTS Widgets WebEngineWidgets REQUIRED)
 
 find_package(ManiVault COMPONENTS Core PointData ImageData CONFIG QUIET)
 
-set(INSTALL_SUBPROJECTS OFF)
-add_subdirectory(external/mio)
+set(MIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/external/mio/single_include")
 
 # -----------------------------------------------------------------------------
 # Source files
@@ -79,6 +78,7 @@ add_library(${ENVIPROJECT} SHARED ${SOURCES} ${AUX})
 # Target include directories
 # -----------------------------------------------------------------------------
 target_include_directories(${ENVIPROJECT} PRIVATE "${ManiVault_INCLUDE_DIR}")
+target_include_directories(${ENVIPROJECT} PRIVATE "${MIO_INCLUDE_DIR}")
 
 # -----------------------------------------------------------------------------
 # Target properties
@@ -88,8 +88,6 @@ target_compile_features(${ENVIPROJECT} PRIVATE cxx_std_20)
 # -----------------------------------------------------------------------------
 # Target library linking
 # -----------------------------------------------------------------------------
-target_link_libraries(${ENVIPROJECT} PRIVATE mio::mio)
-
 target_link_libraries(${ENVIPROJECT} PRIVATE Qt6::Widgets)
 target_link_libraries(${ENVIPROJECT} PRIVATE Qt6::WebEngineWidgets)
 
