@@ -9,7 +9,7 @@ using namespace mv::plugin;
 /**
  * ENVI loader plugin class
  *
- * This loader plugin class provides functionality to load high-dimensional image data in the ENVI format into HDPS
+ * This loader plugin class provides functionality to load high-dimensional image data in the ENVI format into ManiVault
  *
  * @author Thomas Höllt
  */
